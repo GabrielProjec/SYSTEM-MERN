@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import "./passwordInput.scss";
-
-//PASSWORD
+import "./PasswordInput.scss";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const PasswordInput = ({ placeholder, value, onChange, name, onPaste }) => {
@@ -33,4 +31,3 @@ const PasswordInput = ({ placeholder, value, onChange, name, onPaste }) => {
 };
 
 export default PasswordInput;
-

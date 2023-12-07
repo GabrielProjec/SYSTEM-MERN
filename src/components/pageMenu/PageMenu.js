@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { AdminAuthorLink } from "../protect/hiddenLink";
 
 const PageMenu = () => {
   return (
@@ -7,20 +8,16 @@ const PageMenu = () => {
       <nav className="--btn-google --p --mb">
         <ul className="home-links">
           <li>
-            <NavLink to="/profile" className="">
-              Profile
-            </NavLink>
+            <NavLink to="/profile">Profile</NavLink>
           </li>
           <li>
-            <NavLink to="/changePassword" className="">
-              Change Password
-            </NavLink>
+            <NavLink to="/changePassword">Change Password</NavLink>
           </li>
-          <li>
-            <NavLink to="/users" className="">
-              Users
-            </NavLink>
-          </li>
+          <AdminAuthorLink>
+            <li>
+              <NavLink to="/users">Users</NavLink>
+            </li>
+          </AdminAuthorLink>
         </ul>
       </nav>
     </div>

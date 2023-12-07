@@ -1,8 +1,8 @@
 import React from "react";
 import "./Home.scss";
-
-// ASSETS
-import HomeImg from "../../assets/login.svg";
+import Footer from "../../components/footer/Footer";
+import Header from "../../components/header/Header";
+import loginImg from "../../assets/login.svg";
 import { Link } from "react-router-dom";
 
 const Home = () => {
@@ -15,18 +15,21 @@ const Home = () => {
             Learn and Master Authentication and Authorization using MERN Stack.
           </p>
           <p>
-            Implement User Registration, Login, Password Reset, Social Login,
+            Implement User Regisration, Login, Password Reset, Social Login,
             User Permissions, Email Notifications etc.
           </p>
           <div className="hero-buttons --flex-start">
-            <button className="--btn --btn-danger">Register</button>
+            <button className="--btn --btn-danger">
+              <Link to="/register">Register</Link>
+            </button>
             <button className="--btn --btn-primary">
-              <Link to='/login'>Login</Link>
+              <Link to="/login">Login</Link>
             </button>
           </div>
         </div>
+
         <div className="hero-image">
-          <img src={HomeImg} alt="Auth" />
+          <img src={loginImg} alt="Auth" />
         </div>
       </section>
     </div>

@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from "react";
-import styles from "./auth.module.scss";
-import { Link } from "react-router-dom";
-
-//COMPONENTS
-import Card from "../../components/card/Card";
-import PasswordInput from "../../components/passwordInput/passwordInput";
-
-//ICONS
-import { TiUserAddOutline } from "react-icons/ti";
 import { FaTimes } from "react-icons/fa";
 import { BsCheck2All } from "react-icons/bs";
+import { TiUserAddOutline } from "react-icons/ti";
+import { Link, useNavigate } from "react-router-dom";
+import Card from "../../components/card/Card";
+import PasswordInput from "../../components/passwordInput/PasswordInput";
+import styles from "./auth.module.scss";
+import { toast } from "react-toastify";
+import { validateEmail } from "../../redux/features/auth/authService";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  register,
+  RESET,
+  sendVerificationEmail,
+} from "../../redux/features/auth/authSlice";
+import Loader from "../../components/loader/Loader";
 
 const initialState = {
   name: "",
@@ -20,8 +25,14 @@ const initialState = {
 
 const Register = () => {
   const [formData, setFormData] = useState(initialState);
-
   const { name, email, password, password2 } = formData;
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { isLoading, isLoggedIn, isSuccess, message } = useSelector(
+    (state) => state.auth
+  );
 
   const [uCase, setUCase] = useState(false);
   const [num, setNum] = useState(false);
@@ -44,28 +55,25 @@ const Register = () => {
   };
 
   useEffect(() => {
-    // Verifica o Lower and Uppercase
+    // Check Lower and Uppercase
     if (password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
       setUCase(true);
     } else {
       setUCase(false);
     }
-
-    // Verifica os numeros
+    // Check for numbers
     if (password.match(/([0-9])/)) {
       setNum(true);
     } else {
       setNum(false);
     }
-
-    // Verifica os caracteres especiais
+    // Check for special character
     if (password.match(/([!,%,&,@,#,$,^,*,?,_,~])/)) {
       setSChar(true);
     } else {
       setSChar(false);
     }
-
-    // Verifica o tamanho da senha
+    // Check for PASSWORD LENGTH
     if (password.length > 5) {
       setPassLength(true);
     } else {
@@ -73,10 +81,44 @@ const Register = () => {
     }
   }, [password]);
 
-  const loginUser = () => {};
+  const registerUser = async (e) => {
+    e.preventDefault();
+
+    if (!name || !email || !password) {
+      return toast.error("All fields are required");
+    }
+    if (password.length < 6) {
+      return toast.error("Password must be up to 6 characters");
+    }
+    if (!validateEmail(email)) {
+      return toast.error("Please enter a valid email");
+    }
+    if (password !== password2) {
+      return toast.error("Passwords do not match");
+    }
+
+    const userData = {
+      name,
+      email,
+      password,
+    };
+
+    // console.log(userData);
+    await dispatch(register(userData));
+    await dispatch(sendVerificationEmail());
+  };
+
+  useEffect(() => {
+    if (isSuccess && isLoggedIn) {
+      navigate("/profile");
+    }
+
+    dispatch(RESET());
+  }, [isLoggedIn, isSuccess, dispatch, navigate]);
 
   return (
     <div className={`container ${styles.auth}`}>
+      {isLoading && <Loader />}
       <Card>
         <div className={styles.form}>
           <div className="--flex-center">
@@ -84,20 +126,20 @@ const Register = () => {
           </div>
           <h2>Register</h2>
 
-          <form onSubmit={loginUser}>
+          <form onSubmit={registerUser}>
             <input
-              required
               type="text"
-              name="name"
               placeholder="Name"
+              required
+              name="name"
               value={name}
               onChange={handleInputChange}
             />
             <input
-              required
               type="email"
-              name="email"
               placeholder="Email"
+              required
+              name="email"
               value={email}
               onChange={handleInputChange}
             />
@@ -112,10 +154,14 @@ const Register = () => {
               name="password2"
               value={password2}
               onChange={handleInputChange}
+              onPaste={(e) => {
+                e.preventDefault();
+                toast.error("Cannot paste into input field");
+                return false;
+              }}
             />
 
             {/* Password Strength */}
-
             <Card cardClass={styles.group}>
               <ul className="form-list">
                 <li>
@@ -133,7 +179,7 @@ const Register = () => {
                 <li>
                   <span className={styles.indicator}>
                     {switchIcon(sChar)}
-                    &nbsp; Special Character (!@#$%*)
+                    &nbsp; Special Character (!@#$%^&*)
                   </span>
                 </li>
                 <li>
@@ -152,7 +198,7 @@ const Register = () => {
 
           <span className={styles.register}>
             <Link to="/">Home</Link>
-            <p>&nbsp; Already have an account? &nbsp; </p>
+            <p> &nbsp; Already have an account? &nbsp;</p>
             <Link to="/login">Login</Link>
           </span>
         </div>
